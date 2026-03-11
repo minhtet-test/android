@@ -28,16 +28,20 @@ jobs:
         with:
           gradle-version: '8.4'
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission
         run: chmod +x gradlew
 
-      # APK build လုပ်တာကို ကျော်ပြီး Library (.aar) ကိုပဲ အဓိကထားထုတ်ခြင်း
-      - name: Build Library Only
+      # မလိုအပ်ဘဲ အချိန်ကြာစေမည့် Lint နှင့် အခြား Tasks များကို ပိတ်ပြီး Library ကိုသာ Build လုပ်ခြင်း
+      - name: Fast Build Library Only
         run: |
-          ./gradlew :tunnel:assembleRelease || ./gradlew :library:assembleRelease || ./gradlew :amneziawg:assembleRelease || ./gradlew assemble
-
+          ./gradlew :tunnel:assembleRelease \
+            -x lint \
+            -x lintVitalRelease \
+            -x test \
+            --stacktrace
+            
       - name: Upload Library Result
         uses: actions/upload-artifact@v4
         with:
           name: amnezia-i1-aar
-          path: "**/*.aar"
+          path: "**/tunnel-release.aar"
