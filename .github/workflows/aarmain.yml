@@ -1,0 +1,36 @@
+name: Build AmneziaWG AAR
+
+on:
+  workflow_dispatch: # Manual နှိပ်ပြီး Build လုပ်နိုင်ရန်
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive' # Go Backend code များပါလာစေရန်
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21' # AmneziaWG အတွက် အသင့်တော်ဆုံး version
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Tunnel AAR
+        run: ./gradlew :tunnel:assembleRelease
+
+      - name: Upload AAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: amnezia-tunnel-release
+          path: tunnel/build/outputs/aar/*.aar
